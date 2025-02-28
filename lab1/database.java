@@ -1,3 +1,4 @@
+// сущность клиента, с зависимостями и необходимым для hibernate. Каждую сущность в отдельный интерфейс. Методы допишем в пункте 4
 import javax.persistence.*;
 import java.util.Set;
 
@@ -28,6 +29,24 @@ public class Client {
     // Геттеры и сеттеры
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Сущность группы
+
+import javax.persistence.*;
+import java.util.Set;
+
 @Entity
 @Table(name = "groups")
 public class Group {
@@ -48,6 +67,20 @@ public class Group {
 
     // Геттеры и сеттеры
 }
+
+
+
+
+
+
+
+
+
+
+
+// сущность клиента в группе
+import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "client_groups")
@@ -80,6 +113,19 @@ class ClientGroupId implements Serializable {
 
     // Геттеры и сеттеры, equals, hashCode
 }
+
+
+
+
+
+
+
+
+
+
+// сущность задания
+import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Table(name = "tasks")
@@ -128,6 +174,17 @@ class TaskId implements Serializable {
 }
 
 
+
+
+
+
+
+
+
+// сущность обязанности 
+import javax.persistence.*;
+import java.util.Set;
+
 @Entity
 @Table(name = "responsibilities")
 public class Responsibility {
@@ -149,105 +206,43 @@ public class Responsibility {
     // Геттеры и сеттеры
 }
 
-@Entity
-@Table(name = "days_of_week")
-public class DayOfWeek {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "day_id")
-    private Long dayId;
 
-    @Column(name = "day_name", nullable = false)
-    private String dayName;
 
-    // Геттеры и сеттеры
-}
 
-@Entity
-@Table(name = "weeks")
-public class Week {
 
-    @EmbeddedId
-    private WeekId id;
 
-    @ManyToOne
-    @MapsId("clientId")
-    @JoinColumn(name = "client_id", nullable = false)
-    private Client client;
 
-    @ManyToOne
-    @MapsId("groupId")
-    @JoinColumn(name = "group_id", nullable = false)
-    private Group group;
 
-    @Column(name = "week_number", nullable = false)
-    private Integer weekNumber;
 
-    // Геттеры и сеттеры
-}
 
-@Embeddable
-class WeekId implements Serializable {
+// это для работы с БД, понадобится в пункте 3
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
 
-    @Column(name = "client_id")
-    private Long clientId;
+public class Main {
+    public static void main(String[] args) {
+        // Создание SessionFactory
+        SessionFactory sessionFactory = new Configuration()
+                .configure("hibernate.cfg.xml")
+                .buildSessionFactory();
 
-    @Column(name = "group_id")
-    private Long groupId;
+        // Открытие сессии
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
 
-    // Геттеры и сеттеры, equals, hashCode
-}
+        // Создание и сохранение сущности
+        Client client = new Client();
+        client.setUsername("john_doe");
+        client.setEmail("john@example.com");
+        client.setPassword("password123");
 
-@Entity
-@Table(name = "years")
-public class Year {
+        session.save(client);
 
-    @EmbeddedId
-    private YearId id;
-
-    @ManyToOne
-    @MapsId("clientId")
-    @JoinColumn(name = "client_id", nullable = false)
-    private Client client;
-
-    @ManyToOne
-    @MapsId("groupId")
-    @JoinColumn(name = "group_id", nullable = false)
-    private Group group;
-
-    @Column(name = "year", nullable = false)
-    private Integer year;
-
-    // Геттеры и сеттеры
-}
-
-@Embeddable
-class YearId implements Serializable {
-
-    @Column(name = "client_id")
-    private Long clientId;
-
-    @Column(name = "group_id")
-    private Long groupId;
-
-    // Геттеры и сеттеры, equals, hashCode
-}
-
-@Entity
-@Table(name = "days")
-public class Day {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "day_id")
-    private Long dayId;
-
-    @Column(name = "date", nullable = false)
-    private Date date;
-
-    @Column(name = "day_of_week", nullable = false)
-    private String dayOfWeek;
-
-    // Геттеры и сеттеры
+        // Завершение транзакции
+        session.getTransaction().commit();
+        session.close();
+        sessionFactory.close();
+    }
 }
